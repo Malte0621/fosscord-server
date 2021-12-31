@@ -4,14 +4,14 @@ import { Guild } from "./Guild";
 import { PublicUserProjection, User } from "./User";
 import { HTTPError } from "lambert-server";
 import { containsAll, emitEvent, getPermission, Snowflake, trimSpecial } from "../util";
-import { ChannelCreateEvent, ChannelRecipientRemoveEvent } from "../interfaces";
+import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadMetadata } from "../interfaces";
 import { Recipient } from "./Recipient";
 import { Message } from "./Message";
 import { ReadState } from "./ReadState";
 import { Invite } from "./Invite";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import { DmChannelDTO } from "../dtos";
+import { DmChannelDTO, ThreadChannelDTO } from "../dtos";
 
 export enum ChannelType {
 	GUILD_TEXT = 0, // a text channel within a server
@@ -69,7 +69,7 @@ export class Channel extends BaseClass {
 	@ManyToOne(() => Channel)
 	parent?: Channel;
 
-	// only for group dms
+	// only for group dms and threads
 	@Column({ nullable: true })
 	@RelationId((channel: Channel) => channel.owner)
 	owner_id: string;
@@ -108,6 +108,9 @@ export class Channel extends BaseClass {
 	@Column({ nullable: true })
 	topic?: string;
 
+	@Column({ nullable: true, type: "simple-json" })
+	thread_metadata?: ThreadMetadata;
+
 	@OneToMany(() => Invite, (invite: Invite) => invite.channel, {
 		cascade: true,
 		orphanedRowAction: "delete",
@@ -138,7 +141,6 @@ export class Channel extends BaseClass {
 	})
 	webhooks?: Webhook[];
 
-	// TODO: DM channel
 	static async createChannel(
 		channel: Partial<Channel>,
 		user_id: string = "0",
@@ -171,6 +173,7 @@ export class Channel extends BaseClass {
 			case ChannelType.GROUP_DM:
 				throw new HTTPError("You can't create a dm channel in a guild");
 			// TODO: check if guild is community server
+			// TODO: call createThread if someone used this method instead of proper one 
 			case ChannelType.GUILD_STORE:
 			case ChannelType.GUILD_NEWS:
 			default:
@@ -191,18 +194,20 @@ export class Channel extends BaseClass {
 			new Channel(channel).save(),
 			!opts?.skipEventEmit
 				? emitEvent({
-						event: "CHANNEL_CREATE",
-						data: channel,
-						guild_id: channel.guild_id,
-				  } as ChannelCreateEvent)
+					event: "CHANNEL_CREATE",
+					data: channel,
+					guild_id: channel.guild_id,
+				} as ChannelCreateEvent)
 				: Promise.resolve(),
 		]);
+
 
 		return channel;
 	}
 
 	static async createDMChannel(recipients: string[], creator_user_id: string, name?: string) {
 		recipients = recipients.unique().filter((x) => x !== creator_user_id);
+		//@ts-ignore ({ id: x }) gives excessive stack error - typescript bug?
 		const otherRecipientsUsers = await User.find({ where: recipients.map((x) => ({ id: x })), select: ["id"] });
 
 		// TODO: check config for max number of recipients
@@ -306,6 +311,94 @@ export class Channel extends BaseClass {
 			},
 			channel_id: channel.id,
 		} as ChannelRecipientRemoveEvent);
+	}
+
+	static async createThread(channel: Partial<Channel>, opts?: {
+		skipPermissionCheck: boolean,
+		keepId: boolean,
+		skipEventEmit: boolean,
+		skipExistsCheck: boolean
+	}) {
+		if (!opts?.skipPermissionCheck) {
+			const permissions = await getPermission(channel.owner_id, channel.guild_id);
+			permissions.hasThrow("USE_PUBLIC_THREADS");
+		}
+
+		const parent = await Channel.findOneOrFail({ id: channel.parent_id })
+		if (!parent) throw new HTTPError("Parent id channel doesn't exist", 400);
+
+		const saved = await new Channel({
+			...channel,
+			rate_limit_per_user: 0,
+			thread_metadata: {
+				archived: false,
+				archive_timestamp: new Date(Date.now() + 1440 * 1000 * 60).toISOString(),	//todo do this properly
+				auto_archive_duration: 1440,
+				locked: false,
+			},
+			recipients: [
+				new Recipient({ user_id: channel.owner_id }),
+			]
+		}).save();
+
+		const threadDto = await ThreadChannelDTO.from(saved);
+
+		if (opts?.skipEventEmit) return;
+
+		await Promise.all([
+			emitEvent({
+				event: "THREAD_CREATE",
+				data: threadDto,
+				guild_id: threadDto.guild_id,
+			}),
+			emitEvent({
+				event: "THREAD_MEMBERS_UPDATE",
+				data: {
+					guild_id: threadDto.guild_id,
+					member_count: threadDto.member_count,
+					added_members: [
+						{
+							id: threadDto.id,
+							user_id: threadDto.owner_id,
+							join_timestamp: new Date().toISOString(),
+							flags: 0
+						}
+					],
+					removed_member_ids: [],
+				}
+			})
+		])
+
+		return saved;
+
+		// await Promise.all([
+		// 	new Channel(channel).save(),
+		// 	!opts?.skipEventEmit
+		// 		? emitEvent({
+		// 			event: channel.type === ChannelType.GUILD_PUBLIC_THREAD ? "THREAD_CREATE" : "CHANNEL_CREATE",
+		// 			data: channel,
+		// 			guild_id: channel.guild_id,
+		// 		} as ChannelCreateEvent)
+		// 		: Promise.resolve(),
+		// ]);
+
+		// emitEvent({
+		// 	event: "THREAD_MEMBERS_UPDATE",
+		// 	guild_id: channel.guild_id,
+		// 	data: {
+		// 		guild_id: channel.guild_id,
+		// 		member_count: channel.member_count,
+		// 		added_members: [
+		// 			{
+		// 				id: channel.id,
+		// 				user_id: channel.owner_id,
+		// 				join_timestamp: new Date().toISOString(),
+		// 				flags: 0
+		// 			}
+		// 		],
+		// 		removed_member_ids: [],
+		// 	}
+		// })
 	}
 
 	static async deleteChannel(channel: Channel) {

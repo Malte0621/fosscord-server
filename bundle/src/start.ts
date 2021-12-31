@@ -9,7 +9,7 @@ config();
 import { execSync } from "child_process";
 
 // TODO: add socket event transmission
-let cores = Number(process.env.THREADS) || os.cpus().length;
+let cores = 1;//Number(process.env.THREADS) || os.cpus().length;
 
 if (cluster.isMaster) {
 	function getCommitOrFail() {
