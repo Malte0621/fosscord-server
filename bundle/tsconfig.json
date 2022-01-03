@@ -1,6 +1,15 @@
 {
 	"include": ["dist/**/*.ts"],
 	"exclude": [],
+	"ts-node": {
+		"transpileOnly": true,
+		"preferTsExts": true,
+		"compilerOptions": {
+			"rootDir": "../",
+			"baseUrl": ".",
+		},
+		"require": ["tsconfig-paths/register"]
+	},
 	"compilerOptions": {
 		/* Visit https://aka.ms/tsconfig.json to read more about this file */
 
@@ -16,7 +25,7 @@
 		// "jsx": "preserve",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
 		"declaration": false /* Generates corresponding '.d.ts' file. */,
 		"declarationMap": false /* Generates a sourcemap for each corresponding '.d.ts' file. */,
-		"sourceMap": false /* Generates corresponding '.map' file. */,
+		"sourceMap": true /* Generates corresponding '.map' file. */,
 		// "outFile": "./",                       /* Concatenate and emit output to single file. */
 		"outDir": "./dist/" /* Redirect output structure to the directory. */,
 		"rootDir": "./dist/" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
@@ -45,7 +54,7 @@
 		// "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
 
 		/* Module Resolution Options */
-		// "moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+		"moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
 		// "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
 		// "typeRoots": [],                       /* List of folders to include type definitions from. */
 		"types": [
@@ -74,11 +83,13 @@
 		"resolveJsonModule": true,
 		"baseUrl": "./dist/",
 		"paths": {
-			"@fosscord/api": ["api/src/index"],
-			"@fosscord/gateway": ["gateway/src/index"],
-			"@fosscord/cdn": ["cdn/src/index"],
-			"@fosscord/util": ["util/src/index"]
+			"@fosscord/api": ["api/src/index", "../../api/src/index"],
+			"@fosscord/gateway": ["gateway/src/index", "../../gateway/src/index"],
+			"@fosscord/cdn": ["cdn/src/index", "../../cdn/src/index"],
+			"@fosscord/util": ["util/src/index", "../../util/src/index"]
 		},
-		"plugins": [{ "transform": "@zerollup/ts-transform-paths" }]
+		"plugins": [{ "transform": "@zerollup/ts-transform-paths" }],
+		"noEmitHelpers": true,
+		"importHelpers": true
 	}
 }
