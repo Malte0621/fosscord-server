@@ -19,6 +19,7 @@
 				"TS_NODE_PROJECT": "${workspaceFolder}/tsnode.tsconfig.json",
 			},
 			"resolveSourceMapLocations": null, /* allow breakpoints in modules other than bundle */
+			"smartStep": true,
 		},
 		{
 			"sourceMaps": true,
