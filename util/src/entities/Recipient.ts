@@ -26,5 +26,8 @@ export class Recipient extends BaseClass {
 	@Column({ default: false })
 	closed: boolean;
 
+	@Column({ nullable: true })
+	join_timestamp: string;
+
 	// TODO: settings/mute/nick/added at/encryption keys/read_state
 }

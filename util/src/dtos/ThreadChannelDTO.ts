@@ -1,5 +1,6 @@
-import { Channel } from "../entities"
+import { Channel } from "../entities";
 import { ThreadMetadata } from "../interfaces";
+import { ThreadMemberDTO } from "./ThreadMemberDTO";
 
 export class ThreadChannelDTO {
 	id: string;
@@ -13,6 +14,7 @@ export class ThreadChannelDTO {
 	parent_id: string;
 	message_count: number;
 	member_count: number;
+	member_ids_preview: Array<string>;
 	thread_metadata: ThreadMetadata;
 
 	static async from(channel: Channel) {
@@ -29,13 +31,23 @@ export class ThreadChannelDTO {
 
 		if (!channel.messages) {
 			//probably very slow and memory intensive for no reason
-			var { messages } = await Channel.findOneOrFail(channel.id, { relations: ["messages"] });
+			const { messages } = await Channel.findOneOrFail({ id: channel.id }, { relations: ["messages"] });
 			obj.message_count = Math.min(50, messages?.length || 0);
 		}
 
 		if (!channel.recipients) {
-			var { recipients } = await Channel.findOneOrFail(channel.id, { relations: ["recipients"] });
-			obj.member_count = Math.min(50, recipients?.length || 0);
+			const { recipients } = await Channel.findOneOrFail({ id: channel.id }, { relations: ["recipients"] });
+			channel.recipients = recipients;
+		}
+
+		obj.member_count = Math.min(50, channel.recipients?.length || 0);
+		obj.member_ids_preview = channel.recipients?.slice(0, 50).map(x => x.id) || [];
+
+		obj.thread_metadata = {
+			archived: channel.archived,
+			archive_timestamp: new Date(Date.now() + (channel?.default_auto_archive_duration?.valueOf() || 1440 * 1000)).toISOString(),
+			auto_archive_duration: channel?.default_auto_archive_duration?.valueOf() || 1440,
+			locked: channel.locked,
 		}
 
 		return obj;

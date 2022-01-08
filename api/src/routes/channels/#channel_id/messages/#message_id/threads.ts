@@ -1,4 +1,4 @@
-import { Channel, ChannelType } from "@fosscord/util"
+import { Channel, ChannelType, Message } from "@fosscord/util";
 import { Router, Request, Response } from "express";
 import { route } from "@fosscord/api";
 const router = Router();
@@ -48,16 +48,23 @@ router.post("/", route({ body: "ThreadCreationSchema", permission: ["USE_PUBLIC_
 	const body = req.body as ThreadCreationSchema;
 
 	const parent = await Channel.findOneOrFail({ id: channel_id });
+	const message = await Message.findOneOrFail({ id: message_id }, { relations: ["author"] });
 
-	const channel = await Channel.createThread({
-		...body,
-		parent_id: channel_id,
-		owner_id: req.user_id,
-		guild_id: parent.guild_id,
-		last_message_id: message_id,
-	});
+	const channel = await Channel.createThread(
+		{	//channel
+			...body,
+			parent_id: channel_id,
+			owner_id: req.user_id,
+			guild_id: parent.guild_id,
+			id: message_id,
+		},
+		message,
+		{	//opts
+			keepId: true,
+		}
+	);
 
 	res.status(201).json(channel);
-})
+});
 
 export default router;

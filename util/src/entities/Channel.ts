@@ -11,7 +11,7 @@ import { ReadState } from "./ReadState";
 import { Invite } from "./Invite";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import { DmChannelDTO, ThreadChannelDTO } from "../dtos";
+import { DmChannelDTO, ThreadChannelDTO, ThreadMemberDTO } from "../dtos";
 
 export enum ChannelType {
 	GUILD_TEXT = 0, // a text channel within a server
@@ -140,6 +140,12 @@ export class Channel extends BaseClass {
 		orphanedRowAction: "delete",
 	})
 	webhooks?: Webhook[];
+
+	@Column({ nullable: true })
+	archived: boolean;
+
+	@Column({ nullable: true })
+	locked: boolean;
 
 	static async createChannel(
 		channel: Partial<Channel>,
@@ -313,92 +319,82 @@ export class Channel extends BaseClass {
 		} as ChannelRecipientRemoveEvent);
 	}
 
-	static async createThread(channel: Partial<Channel>, opts?: {
-		skipPermissionCheck: boolean,
-		keepId: boolean,
-		skipEventEmit: boolean,
-		skipExistsCheck: boolean
+	static async createThread(channel: Partial<Channel>, message: Partial<Message>, opts?: {
+		skipPermissionCheck?: boolean,
+		keepId?: boolean,
+		skipEventEmit?: boolean,
+		skipExistsCheck?: boolean;
 	}) {
 		if (!opts?.skipPermissionCheck) {
 			const permissions = await getPermission(channel.owner_id, channel.guild_id);
 			permissions.hasThrow("USE_PUBLIC_THREADS");
 		}
 
-		const parent = await Channel.findOneOrFail({ id: channel.parent_id })
+		const parent = await Channel.findOneOrFail({ id: channel.parent_id });
 		if (!parent) throw new HTTPError("Parent id channel doesn't exist", 400);
+
+		const owner = new Recipient({ user_id: channel.owner_id, channel_id: channel.id, join_timestamp: new Date().toISOString() });
 
 		const saved = await new Channel({
 			...channel,
+			...(!opts?.keepId && { id: Snowflake.generate() }),
+			created_at: new Date(),
 			rate_limit_per_user: 0,
 			thread_metadata: {
-				archived: false,
 				archive_timestamp: new Date(Date.now() + 1440 * 1000 * 60).toISOString(),	//todo do this properly
 				auto_archive_duration: 1440,
-				locked: false,
 			},
-			recipients: [
-				new Recipient({ user_id: channel.owner_id }),
-			]
+			archived: false,
+			locked: false,
+			recipients: [owner]
 		}).save();
 
 		const threadDto = await ThreadChannelDTO.from(saved);
 
-		if (opts?.skipEventEmit) return;
+		if (opts?.skipEventEmit) return threadDto;
 
-		await Promise.all([
-			emitEvent({
-				event: "THREAD_CREATE",
-				data: threadDto,
+		await emitEvent({
+			event: "MESSAGE_UPDATE",
+			guild_id: threadDto.guild_id,
+			data: {
+				id: threadDto.id,
 				guild_id: threadDto.guild_id,
-			}),
-			emitEvent({
-				event: "THREAD_MEMBERS_UPDATE",
-				data: {
-					guild_id: threadDto.guild_id,
-					member_count: threadDto.member_count,
-					added_members: [
-						{
-							id: threadDto.id,
-							user_id: threadDto.owner_id,
-							join_timestamp: new Date().toISOString(),
-							flags: 0
-						}
-					],
-					removed_member_ids: [],
-				}
-			})
-		])
+				channel_id: threadDto.id,
+				flags: 32,	// TODO: what is this?
+			}
+		});
 
-		return saved;
+		//order matters
+		await emitEvent({
+			event: "THREAD_CREATE",
+			data: threadDto,
+			guild_id: threadDto.guild_id,
+		});
 
-		// await Promise.all([
-		// 	new Channel(channel).save(),
-		// 	!opts?.skipEventEmit
-		// 		? emitEvent({
-		// 			event: channel.type === ChannelType.GUILD_PUBLIC_THREAD ? "THREAD_CREATE" : "CHANNEL_CREATE",
-		// 			data: channel,
-		// 			guild_id: channel.guild_id,
-		// 		} as ChannelCreateEvent)
-		// 		: Promise.resolve(),
-		// ]);
+		await emitEvent({
+			event: "THREAD_MEMBER_UPDATE",
+			guild_id: threadDto.guild_id,
+			data: {
+				guild_id: threadDto.guild_id,
+				...ThreadMemberDTO.from(owner),
+				muted: false,
+				mute_config: null,	// TODO: what is this?
+				user_id: owner.id,
+			}
+		});
 
-		// emitEvent({
-		// 	event: "THREAD_MEMBERS_UPDATE",
-		// 	guild_id: channel.guild_id,
-		// 	data: {
-		// 		guild_id: channel.guild_id,
-		// 		member_count: channel.member_count,
-		// 		added_members: [
-		// 			{
-		// 				id: channel.id,
-		// 				user_id: channel.owner_id,
-		// 				join_timestamp: new Date().toISOString(),
-		// 				flags: 0
-		// 			}
-		// 		],
-		// 		removed_member_ids: [],
-		// 	}
-		// })
+		if (message) {
+			message.channel_id = threadDto.id;
+			message.id = Snowflake.generate();
+			await Message.insert(message);
+			await emitEvent({
+				event: "MESSAGE_CREATE",
+				data: (message as Message).toJSON(),
+				channel_id: threadDto.id,
+			});
+		}
+
+		return threadDto;
 	}
 
 	static async deleteChannel(channel: Channel) {
