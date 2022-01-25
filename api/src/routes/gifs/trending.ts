@@ -7,7 +7,53 @@ import { HTTPError } from "lambert-server";
 
 const router = Router();
 
-export function parseGifResult(result: any) {
+export type TenorGifObject = {
+	id: string,
+	title: string,
+	content_description: string,
+	h1_title: string,
+	bg_color: string,
+	created: number,
+	itemurl: string,
+	url: string,
+	tags: Array<string>,
+	flags: Array<string>,
+	shares: number,
+	hasaudio: boolean,
+	hascaption: boolean,
+	source_id: string,
+	composite: unknown,		//undocumented by tenor
+	media: Array<{
+		[key: string]: {
+			size: number,
+			dims: [number, number],
+			duration: number,
+			url: string,
+			preview: string,
+		};
+	}>,
+};
+
+export type TenorTrendingResults = {
+	locale: string,
+	results: Array<TenorGifObject>;
+};
+
+export type TenorTagResults = {
+	locale: string,
+	tags: Array<{
+		searchterm: string,
+		path: string,
+		image: string,
+		name: string,
+	}>;
+};
+
+export type TenorSearchResults = {
+	results: Array<TenorGifObject>,
+}
+
+export function parseGifResult(result: TenorGifObject) {
 	return {
 		id: result.id,
 		title: result.title,
@@ -34,7 +80,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 	const { media_format, locale } = req.query;
 
 	const apiKey = getGifApiKey();
-	
+
 	const agent = new ProxyAgent();
 
 	const [responseSource, trendGifSource] = await Promise.all([
@@ -50,8 +96,8 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 		})
 	]);
 
-	const { tags } = await responseSource.json();
-	const { results } = await trendGifSource.json();
+	const { tags } = await responseSource.json() as TenorTagResults;
+	const { results } = await trendGifSource.json() as TenorTrendingResults;
 
 	res.json({
 		categories: tags.map((x: any) => ({ name: x.searchterm, src: x.image })),

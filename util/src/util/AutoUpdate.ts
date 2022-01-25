@@ -76,7 +76,7 @@ async function getLatestVersion(url: string) {
 	try {
 		const agent = new ProxyAgent();
 		const response = await fetch(url, { agent });
-		const content = await response.json();
+		const content = await response.json() as { version: number };
 		return content.version;
 	} catch (error) {
 		throw new Error("[Auto update] check failed for " + url);

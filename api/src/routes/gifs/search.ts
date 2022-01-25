@@ -2,7 +2,7 @@ import { Router, Response, Request } from "express";
 import fetch from "node-fetch";
 import ProxyAgent from 'proxy-agent';
 import { route } from "@fosscord/api";
-import { getGifApiKey, parseGifResult } from "./trending";
+import { getGifApiKey, parseGifResult, TenorSearchResults } from "./trending";
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 		headers: { "Content-Type": "application/json" }
 	});
 
-	const { results } = await response.json();
+	const { results } = await response.json() as TenorSearchResults;
 
 	res.json(results.map(parseGifResult)).status(200);
 });

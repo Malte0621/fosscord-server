@@ -4,6 +4,15 @@ import fetch from "node-fetch";
 import { Config } from "./Config";
 import multer from "multer";
 
+export type CdnResponse = {
+	id: string,
+	content_type: string,
+	size: number,
+	url: string,
+	width?: number,
+	height?: number,
+}
+
 export async function uploadFile(path: string, file?: Express.Multer.File) {
 	if (!file?.buffer) throw new HTTPError("Missing file in body");
 
@@ -21,7 +30,7 @@ export async function uploadFile(path: string, file?: Express.Multer.File) {
 		method: "POST",
 		body: form,
 	});
-	const result = await response.json();
+	const result = await response.json() as CdnResponse;
 
 	if (response.status !== 200) throw result;
 	return result;
