@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "src/start.js",
+	"type": "module",
 	"scripts": {
 		"setup": "node scripts/install.js && npm install --no-optional && ts-patch install -s && patch-package --patch-dir ../api/patches/ && npm run build",
 		"build": "node scripts/build.js",

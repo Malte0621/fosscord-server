@@ -4,7 +4,7 @@ import fse from "fs-extra";
 import { join, relative, dirname } from "path";
 import "missing-native-js-functions";
 import { Readable } from "stream";
-import ExifTransformer = require("exif-be-gone");
+const ExifTransformer = require("exif-be-gone");
 
 // TODO: split stored files into separate folders named after cloned route
 
