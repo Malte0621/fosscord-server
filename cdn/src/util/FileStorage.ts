@@ -4,7 +4,7 @@ import fse from "fs-extra";
 import { join, relative, dirname } from "path";
 import "missing-native-js-functions";
 import { Readable } from "stream";
-const ExifTransformer = require("exif-be-gone");
+const ExifTransformer = import("exif-be-gone");
 
 // TODO: split stored files into separate folders named after cloned route
 
@@ -41,7 +41,7 @@ export class FileStorage implements Storage {
 		value = Readable.from(value);
 		const cleaned_file = fs.createWriteStream(path);
 
-		return value.pipe(new ExifTransformer()).pipe(cleaned_file);
+		return value.pipe(new (await ExifTransformer).default()).pipe(cleaned_file);
 	}
 
 	async delete(path: string) {
