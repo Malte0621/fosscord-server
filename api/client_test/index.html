@@ -54,9 +54,14 @@
 			setInterval(() => {
 				var token = JSON.parse(localStorage.getItem("token"));
 				if (token) {
+					var logincss = document.querySelector('#logincss'),
+					canRemove = logincss ? logincss: "";
+					if(canRemove !== "") {
 					document.querySelector("#logincss").remove();
+					canRemove = "";
+					}
 				}
-			}, 1000);
+			}, 1000)
 
 			const settings = JSON.parse(localStorage.getItem("UserSettingsStore"));
 			if (settings && settings.locale.length <= 2) {
@@ -65,11 +70,11 @@
 				localStorage.setItem("UserSettingsStore", JSON.stringify(settings));
 			}
 		</script>
-		<script src="/assets/checkLocale.js"></script>
-		<script src="/assets/4386552fae5ffa90afbf.js"></script>
-		<script src="/assets/af5903aad2cc1f5cfd22.js"></script>
-		<script src="/assets/8799fc073394b31a5a71.js"></script>
-		<script src="/assets/72001f09f5dc9cab20d0.js"></script>
+	 	<script src="/assets/checkLocale.js"></script>
+		<script src="/assets/1e18f2aac02e172db283.js"></script>
+		<script src="/assets/681e53cdfefa5b82249a.js"></script>
+		<script src="/assets/7a036838c0a0e73f59d8.js"></script>
+		<script src="/assets/b6cf2184a7a05e7525ce.js"></script>
 		<!-- plugin marker -->
 	</body>
 </html>

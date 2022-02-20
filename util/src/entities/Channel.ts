@@ -3,7 +3,7 @@ import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { PublicUserProjection, User } from "./User";
 import { HTTPError } from "lambert-server";
-import { containsAll, emitEvent, getPermission, Snowflake, trimSpecial } from "../util";
+import { containsAll, emitEvent, getPermission, Snowflake, trimSpecial, InvisibleCharacters } from "../util";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadMetadata } from "../interfaces";
 import { Recipient } from "./Recipient";
 import { Message } from "./Message";
@@ -155,12 +155,34 @@ export class Channel extends BaseClass {
 			skipExistsCheck?: boolean;
 			skipPermissionCheck?: boolean;
 			skipEventEmit?: boolean;
+			skipNameChecks?: boolean;
 		}
 	) {
 		if (!opts?.skipPermissionCheck) {
 			// Always check if user has permission first
 			const permissions = await getPermission(user_id, channel.guild_id);
 			permissions.hasThrow("MANAGE_CHANNELS");
+		}
+
+		if (!opts?.skipNameChecks) {
+			const guild = await Guild.findOneOrFail({ id: channel.guild_id });
+			if (!guild.features.includes("ALLOW_INVALID_CHANNEL_NAMES") && channel.name) {
+				for (var character of InvisibleCharacters)
+					if (channel.name.includes(character))
+						throw new HTTPError("Channel name cannot include invalid characters", 403);
+
+				if (channel.name.match(/\-\-+/g))
+					throw new HTTPError("Channel name cannot include multiple adjacent dashes.", 403)
+
+				if (channel.name.charAt(0) === "-" ||
+					channel.name.charAt(channel.name.length - 1) === "-")
+					throw new HTTPError("Channel name cannot start/end with dash.", 403)
+			}
+
+			if (!guild.features.includes("ALLOW_UNNAMED_CHANNELS")) {
+				if (!channel.name)
+					throw new HTTPError("Channel name cannot be empty.", 403);
+			}
 		}
 
 		switch (channel.type) {
