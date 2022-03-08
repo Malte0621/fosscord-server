@@ -20,6 +20,10 @@
 				"TS_NODE_COMPILER": "typescript-cached-transpile"
 			},
 			"resolveSourceMapLocations": null, /* allow breakpoints in modules other than bundle */
+			"outFiles":[
+				"${workspaceFolder}/**/*.js",
+				"!**/node_modules/**"
+			]
 		},
 		{
 			"sourceMaps": true,
