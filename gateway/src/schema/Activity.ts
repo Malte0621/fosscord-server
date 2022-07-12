@@ -38,6 +38,12 @@ export const ActivitySchema = {
 			},
 			$instance: Boolean,
 			$flags: String,
+			$sync_id: String,
+			$metadata: {
+				$album_id: String,
+				$artist_ids: [String],
+				$context_uri: String,
+			}
 		},
 	],
 	$since: Number, // unix time (in milliseconds) of when the client went idle, or null if the client is not idle

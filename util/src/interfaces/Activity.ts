@@ -33,6 +33,13 @@ export interface Activity {
 	};
 	instance?: boolean;
 	flags: string; // activity flags OR d together, describes what the payload includes
+
+	sync_id?: string;	// Spotify?
+	metadata?: {	// Spotify song meta? could perhaps be used for other things
+		album_id?: string;
+		artist_ids?: [string];
+		context_uri?: string;
+	}
 }
 
 export enum ActivityType {
