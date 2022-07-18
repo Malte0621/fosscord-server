@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { BaseEntity, EntityMetadata, FindConditions, ObjectIdColumn, PrimaryColumn } from "typeorm";
+import { BaseEntity, EntityMetadata, ObjectIdColumn, PrimaryColumn, FindConditions } from "typeorm";
 import { Snowflake } from "../util/Snowflake";
 import "missing-native-js-functions";
 

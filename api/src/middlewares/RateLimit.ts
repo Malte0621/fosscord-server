@@ -183,7 +183,7 @@ async function hitRoute(opts: { executor_id: string; bucket_id: string; max_hits
 	}
 
 	/*
-	var ratelimit = await RateLimit.findOne({ id: opts.bucket_id, executor_id: opts.executor_id });
+	var ratelimit = await RateLimit.findOne({ where: { id: opts.bucket_id, executor_id: opts.executor_id } });
 	if (!ratelimit) {
 		ratelimit = new RateLimit({
 			id: opts.bucket_id,

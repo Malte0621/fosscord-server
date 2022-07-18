@@ -1,0 +1,98 @@
+[96mdist/api/src/routes/channels/#channel_id/messages/bulk-delete.ts[0m:[93m38[0m:[93m23[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ id: string; }[]' is not assignable to parameter of type 'string | number | string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<Message>'.
+  Type '{ id: string; }[]' is not assignable to type 'string[]'.
+    Type '{ id: string; }' is not assignable to type 'string'.
+
+[7m38[0m  await Message.delete(messages.map((x) => ({ id: x })));
+[7m  [0m [91m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mdist/api/src/routes/channels/#channel_id/purge.ts[0m:[93m75[0m:[93m23[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ id: Message; }[]' is not assignable to parameter of type 'string | number | string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<Message>'.
+  Type '{ id: Message; }[]' is not assignable to type 'string[]'.
+    Type '{ id: Message; }' is not assignable to type 'string'.
+
+[7m75[0m  await Message.delete(messages.map((x) => ({ id: x })));
+[7m  [0m [91m                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mdist/api/src/routes/discoverable-guilds.ts[0m:[93m23[0m:[93m26[0m - [91merror[0m[90m TS2322: [0mType '{ primary_category_id: string | string[] | QueryString.ParsedQs | QueryString.ParsedQs[]; }' is not assignable to type 'FindOptionsWhere<Guild> | FindOptionsWhere<Guild>[] | undefined'.
+  Types of property 'primary_category_id' are incompatible.
+    Type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to type 'number | FindOperator<number> | undefined'.
+      Type 'string' is not assignable to type 'number | FindOperator<number> | undefined'.
+
+[7m23[0m     ? await Guild.find({ where: {primary_category_id: categories}, take: Math.abs(Number(limit || configLimit)) })
+[7m  [0m [91m                         ~~~~~[0m
+
+[96mdist/api/src/routes/discoverable-guilds.ts[0m:[93m25[0m:[93m7[0m - [91merror[0m[90m TS2322: [0mType '{ primary_category_id: string | string[] | QueryString.ParsedQs | QueryString.ParsedQs[]; features: FindOperator<string>; }' is not assignable to type 'FindOptionsWhere<Guild> | FindOptionsWhere<Guild>[] | undefined'.
+  Types of property 'primary_category_id' are incompatible.
+    Type 'string | string[] | ParsedQs | ParsedQs[]' is not assignable to type 'number | FindOperator<number> | undefined'.
+
+[7m25[0m       where: {primary_category_id: categories, features: Like('%DISCOVERABLE%')},
+[7m  [0m [91m      ~~~~~[0m
+
+[96mdist/api/src/routes/discovery.ts[0m:[93m13[0m:[93m79[0m - [91merror[0m[90m TS2322: [0mType '{ is_primary: string; }' is not assignable to type 'FindOptionsWhere<Categories> | FindOptionsWhere<Categories>[] | undefined'.
+  Types of property 'is_primary' are incompatible.
+    Type 'string' is not assignable to type 'boolean | FindOperator<false> | FindOperator<true> | undefined'.
+
+[7m13[0m  const out = primary_only ? await Categories.find() : await Categories.find({ where: {is_primary: "true"} });
+[7m  [0m [91m                                                                              ~~~~~[0m
+
+[96mdist/api/src/routes/users/@me/delete.ts[0m:[93m24[0m:[93m36[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ where: { id: string; }; }' is not assignable to parameter of type 'string | number | string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<User>'.
+  Object literal may only specify known properties, and 'where' does not exist in type 'string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<User>'.
+
+[7m24[0m   await Promise.all([User.delete({ where: { id: req.user_id } }), Member.delete({ where: { id: req.user_id } })]);
+[7m  [0m [91m                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mdist/api/src/routes/users/@me/delete.ts[0m:[93m24[0m:[93m83[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ where: { id: string; }; }' is not assignable to parameter of type 'string | number | string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<Member>'.
+  Object literal may only specify known properties, and 'where' does not exist in type 'string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<Member>'.
+
+[7m24[0m   await Promise.all([User.delete({ where: { id: req.user_id } }), Member.delete({ where: { id: req.user_id } })]);
+[7m  [0m [91m                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mdist/gateway/src/opcodes/Identify.ts[0m:[93m234[0m:[93m3[0m - [91merror[0m[90m TS2322: [0mType 'Application | null' is not assignable to type '{ id: string; flags: string; } | undefined'.
+  Type 'null' is not assignable to type '{ id: string; flags: string; } | undefined'.
+
+[7m234[0m   application,
+[7m   [0m [91m  ~~~~~~~~~~~[0m
+
+  [96mdist/util/src/interfaces/Event.ts[0m:[93m94[0m:[93m2[0m
+    [7m94[0m  application?: {
+    [7m  [0m [96m ~~~~~~~~~~~[0m
+    The expected type comes from property 'application' which is declared here on type 'ReadyEventData'
+
+[96mdist/util/src/entities/BaseClass.ts[0m:[93m2[0m:[93m69[0m - [91merror[0m[90m TS2305: [0mModule '"typeorm"' has no exported member 'FindConditions'.
+
+[7m2[0m import { BaseEntity, EntityMetadata, ObjectIdColumn, PrimaryColumn, FindConditions } from "typeorm";
+[7m [0m [91m                                                                    ~~~~~~~~~~~~~~[0m
+
+[96mdist/util/src/entities/BaseClass.ts[0m:[93m55[0m:[93m31[0m - [91merror[0m[90m TS2345: [0mArgument of type 'T' is not assignable to parameter of type 'FindOptionsWhere<BaseClassWithoutId>'.
+  Type 'BaseClass' is not assignable to type 'FindOptionsWhere<BaseClassWithoutId>'.
+    Types of property 'assign' are incompatible.
+      Type '(props?: any) => T' is not assignable to type 'undefined'.
+
+[7m55[0m   return repository.increment(conditions as T, propertyPath, value);
+[7m  [0m [91m                              ~~~~~~~~~~~~~~~[0m
+
+[96mdist/util/src/entities/BaseClass.ts[0m:[93m60[0m:[93m31[0m - [91merror[0m[90m TS2345: [0mArgument of type 'T' is not assignable to parameter of type 'FindOptionsWhere<BaseClassWithoutId>'.
+  Type 'BaseClass' is not assignable to type 'FindOptionsWhere<BaseClassWithoutId>'.
+    Types of property 'assign' are incompatible.
+      Type '(props?: any) => T' is not assignable to type 'undefined'.
+
+[7m60[0m   return repository.decrement(conditions as T, propertyPath, value);
+[7m  [0m [91m                              ~~~~~~~~~~~~~~~[0m
+
+[96mdist/util/src/entities/Member.ts[0m:[93m158[0m:[93m23[0m - [91merror[0m[90m TS2322: [0mType '"roles.id"' is not assignable to type 'keyof Member'.
+
+[7m158[0m     select: ["index", "roles.id"],
+[7m   [0m [91m                      ~~~~~~~~~~[0m
+
+[96mdist/util/src/entities/Member.ts[0m:[93m184[0m:[93m14[0m - [91merror[0m[90m TS2322: [0mType '"roles.id"' is not assignable to type 'keyof Member'.
+
+[7m184[0m     select: ["roles.id", "index"],
+[7m   [0m [91m             ~~~~~~~~~~[0m
+
+[96mdist/util/src/entities/User.ts[0m:[93m189[0m:[93m41[0m - [91merror[0m[90m TS2488: [0mType 'FindOptionsSelect<User> | FindOptionsSelectByString<User>' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+[7m189[0m    select: [...PublicUserProjection, ...(opts?.select || [])],
+[7m   [0m [91m                                        ~~~~~~~~~~~~~~~~~~~~[0m
+
+
+Found 14 errors.
+

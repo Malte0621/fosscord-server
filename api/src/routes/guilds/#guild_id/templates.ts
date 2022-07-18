@@ -36,7 +36,7 @@ export interface TemplateModifySchema {
 router.get("/", route({}), async (req: Request, res: Response) => {
 	const { guild_id } = req.params;
 
-	var templates = await Template.find({ source_guild_id: guild_id });
+	var templates = await Template.find({ where: { source_guild_id: guild_id } });
 
 	return res.json(templates);
 });
@@ -44,7 +44,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 router.post("/", route({ body: "TemplateCreateSchema", permission: "MANAGE_GUILD" }), async (req: Request, res: Response) => {
 	const { guild_id } = req.params;
 	const guild = await Guild.findOneOrFail({ where: { id: guild_id }, select: TemplateGuildProjection });
-	const exists = await Template.findOneOrFail({ id: guild_id }).catch((e) => {});
+	const exists = await Template.findOneOrFail({ where: { id: guild_id } }).catch((e) => {});
 	if (exists) throw new HTTPError("Template already exists", 400);
 
 	const template = await new Template({

@@ -107,6 +107,10 @@ export class User extends BaseClass {
 	
 	@Column({ select: false })
 	mfa_enabled: boolean; // if multi factor authentication is enabled
+	@Column({ select: false })
+	totp_secret: string;
+	@Column({ type: "simple-array", select: false })
+	totp_backup_codes: string[];
 
 	@Column()
 	created_at: Date; // registration date
@@ -180,13 +184,11 @@ export class User extends BaseClass {
 	}
 
 	static async getPublicUser(user_id: string, opts?: FindOneOptions<User>) {
-		return await User.findOneOrFail(
-			{ id: user_id },
-			{
-				...opts,
-				select: [...PublicUserProjection, ...(opts?.select || [])],
-			}
-		);
+		return await User.findOneOrFail({
+			where: { id: user_id },
+			select: [...PublicUserProjection, ...(opts?.select || [])],
+			...opts
+		});
 	}
 
 	private static async generateDiscriminator(username: string): Promise<string | undefined> {
@@ -246,7 +248,7 @@ export class User extends BaseClass {
 		}
 
 		// TODO: save date_of_birth
-		// appearently discord doesn't save the date of birth and just calculate if nsfw is allowed
+		// apparently discord doesn't save the date of birth and just calculate if nsfw is allowed
 		// if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
 		const language = req.language === "en" ? "en-US" : req.language || "en-US";
 
@@ -264,6 +266,8 @@ export class User extends BaseClass {
 			premium_type: 2,
 			bio: "",
 			mfa_enabled: false,
+			totp_secret: '',
+			totp_backup_codes: [],
 			verified: true,
 			disabled: false,
 			deleted: false,

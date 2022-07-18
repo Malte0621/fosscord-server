@@ -17,11 +17,11 @@ const router: Router = Router();
 router.get("/", route({}), async (req: Request, res: Response) => {
 	const { guild_id } = req.params;
 
-	const guild = await Guild.findOneOrFail({ id: guild_id });
+	const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
 	if (!guild.widget_enabled) throw new HTTPError("Widget Disabled", 404);
 
 	// Fetch existing widget invite for widget channel
-	var invite = await Invite.findOne({ channel_id: guild.widget_channel_id });
+	var invite = await Invite.findOne({ where: { channel_id: guild.widget_channel_id } });
 
 	if (guild.widget_channel_id && !invite) {
 		// Create invite for channel if none exists
@@ -63,7 +63,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 
 	// Fetch members
 	// TODO: Understand how Discord's max 100 random member sample works, and apply to here (see top of this file)
-	let members = await Member.find({ guild_id: guild_id });
+	let members = await Member.find({ where: { guild_id: guild_id }});
 
 	// Construct object to respond with
 	const data = {

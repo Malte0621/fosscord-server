@@ -35,7 +35,7 @@ TODO: apply the delete bit by bit to prevent client and database stress
 **/
 router.post("/", route({ /*body: "PurgeSchema",*/ }), async (req: Request, res: Response) => {
 	const { channel_id } = req.params;
-	const channel = await Channel.findOneOrFail({ id: channel_id });
+	const channel = await Channel.findOneOrFail({ where: {id: channel_id} });
 	
 	if (!channel.guild_id) throw new HTTPError("Can't purge dm channels", 400);
 	isTextChannel(channel.type);

@@ -2,6 +2,7 @@ import { Guild, Config } from "@fosscord/util";
 
 import { Router, Request, Response } from "express";
 import { route } from "@fosscord/api";
+import { Like } from "typeorm";
 
 const router = Router();
 
@@ -16,12 +17,12 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 	if (categories == undefined) {
 		guilds = showAllGuilds
 			? await Guild.find({ take: Math.abs(Number(limit || configLimit)) })
-			: await Guild.find({ where: `"features" LIKE '%DISCOVERABLE%'`, take: Math.abs(Number(limit || configLimit)) });
+			: await Guild.find({ where: {features: Like('%DISCOVERABLE%')}, take: Math.abs(Number(limit || configLimit)) });
 	} else {
 		guilds = showAllGuilds
-				? await Guild.find({ where: `"primary_category_id" = ${categories}`, take: Math.abs(Number(limit || configLimit)) })
+				? await Guild.find({ where: {primary_category_id: categories}, take: Math.abs(Number(limit || configLimit)) })
 				: await Guild.find({
-						where: `"primary_category_id" = ${categories} AND "features" LIKE '%DISCOVERABLE%'`,
+						where: {primary_category_id: categories, features: Like('%DISCOVERABLE%')},
 						take: Math.abs(Number(limit || configLimit))
 				  });
 	}

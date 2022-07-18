@@ -21,7 +21,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
 	// TODO: decrement guild member count
 
 	if (correctpass) {
-		await Promise.all([User.delete({ id: req.user_id }), Member.delete({ id: req.user_id })]);
+		await Promise.all([User.delete({ where: { id: req.user_id } }), Member.delete({ where: { id: req.user_id } })]);
 
 		res.sendStatus(204);
 	} else {
