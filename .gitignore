@@ -13,3 +13,5 @@ api/assets/plugins/*.js
 .idea/
 
 bundle/build.log
+
+bundle/build.log.ansi
