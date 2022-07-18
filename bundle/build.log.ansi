@@ -27,13 +27,6 @@
 [7m25[0m       where: {primary_category_id: categories, features: Like('%DISCOVERABLE%')},
 [7m  [0m [91m      ~~~~~[0m
 
-[96mdist/api/src/routes/discovery.ts[0m:[93m13[0m:[93m79[0m - [91merror[0m[90m TS2322: [0mType '{ is_primary: string; }' is not assignable to type 'FindOptionsWhere<Categories> | FindOptionsWhere<Categories>[] | undefined'.
-  Types of property 'is_primary' are incompatible.
-    Type 'string' is not assignable to type 'boolean | FindOperator<false> | FindOperator<true> | undefined'.
-
-[7m13[0m  const out = primary_only ? await Categories.find() : await Categories.find({ where: {is_primary: "true"} });
-[7m  [0m [91m                                                                              ~~~~~[0m
-
 [96mdist/api/src/routes/users/@me/delete.ts[0m:[93m24[0m:[93m36[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ where: { id: string; }; }' is not assignable to parameter of type 'string | number | string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<User>'.
   Object literal may only specify known properties, and 'where' does not exist in type 'string[] | Date | ObjectID | number[] | Date[] | ObjectID[] | FindOptionsWhere<User>'.
 
@@ -45,6 +38,11 @@
 
 [7m24[0m   await Promise.all([User.delete({ where: { id: req.user_id } }), Member.delete({ where: { id: req.user_id } })]);
 [7m  [0m [91m                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96mdist/gateway/src/opcodes/Identify.ts[0m:[93m49[0m:[93m17[0m - [91merror[0m[90m TS2304: [0mCannot find name 'decoded'.
+
+[7m49[0m  this.user_id = decoded.id;
+[7m  [0m [91m                ~~~~~~~[0m
 
 [96mdist/gateway/src/opcodes/Identify.ts[0m:[93m234[0m:[93m3[0m - [91merror[0m[90m TS2322: [0mType 'Application | null' is not assignable to type '{ id: string; flags: string; } | undefined'.
   Type 'null' is not assignable to type '{ id: string; flags: string; } | undefined'.

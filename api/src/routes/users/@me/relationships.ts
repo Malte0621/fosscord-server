@@ -130,7 +130,7 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
 		select: userProjection
 	});
 
-	var relationship = user.relationships.find((x) => x.to_id === id);
+	let relationship = user.relationships.find((x) => x.to_id === id);
 	const friendRequest = friend.relationships.find((x) => x.to_id === req.user_id);
 
 	// TODO: you can add infinitely many blocked users (should this be prevented?)
@@ -166,8 +166,8 @@ async function updateRelationship(req: Request, res: Response, friend: User, typ
 	const { maxFriends } = Config.get().limits.user;
 	if (user.relationships.length >= maxFriends) throw DiscordApiErrors.MAXIMUM_FRIENDS.withParams(maxFriends);
 
-	var incoming_relationship = new Relationship({ nickname: undefined, type: RelationshipType.incoming, to: user, from: friend });
-	var outgoing_relationship = new Relationship({
+	let incoming_relationship = new Relationship({ nickname: undefined, type: RelationshipType.incoming, to: user, from: friend });
+	let outgoing_relationship = new Relationship({
 		nickname: undefined,
 		type: RelationshipType.outgoing,
 		to: friend,

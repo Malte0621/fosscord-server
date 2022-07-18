@@ -15,8 +15,8 @@ router.get("/", route({ test: { response: { body: "UserProfileResponse" } } }), 
 	if (req.params.id === "@me") req.params.id = req.user_id;
 	const user = await User.getPublicUser(req.params.id, { relations: ["connected_accounts"] });
 
-	var mutual_guilds: object[] = [];
-	var premium_guild_since;
+	let mutual_guilds: object[] = [];
+	let premium_guild_since;
 	const requested_member = await Member.find( { where: { id: req.params.id, } })
 	const self_member = await Member.find( { where: { id: req.user_id, } })
 
