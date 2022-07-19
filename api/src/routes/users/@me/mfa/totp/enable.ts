@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { Guild, Member, User, generateToken } from "@fosscord/util";
 import { route } from "@fosscord/api";
 import bcrypt from "bcrypt";
-import { HTTPError } from "lambert-server";
+import { HTTPError } from "@fosscord/util";
 import { verifyToken } from 'node-2fa'
 
 const router = Router();
