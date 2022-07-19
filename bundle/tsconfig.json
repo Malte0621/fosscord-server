@@ -1,5 +1,5 @@
 {
-	"include": ["dist/**/*.ts"],
+	"include": ["src/*"],
 	"exclude": [],
 	"compilerOptions": {
 
@@ -18,7 +18,7 @@
 		"sourceMap": true /* Generates corresponding '.map' file. */,
 		// "outFile": "./",                       /* Concatenate and emit output to single file. */
 		"outDir": "./dist/" /* Redirect output structure to the directory. */,
-		"rootDir": "./dist/" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
+		// "rootDir": "./dist/" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
 		// "composite": true,                     /* Enable project compilation */
 		// "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
 		// "removeComments": true,                /* Do not emit comments to output. */
@@ -71,12 +71,12 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"resolveJsonModule": true,
-		"baseUrl": "./dist/",
+		// "baseUrl": "./dist/",
 		"paths": {
-			"@fosscord/api": ["api/src/index"],
-			"@fosscord/gateway": ["gateway/src/index"],
-			"@fosscord/cdn": ["cdn/src/index"],
-			"@fosscord/util": ["util/src/index"]
+			"@fosscord/api": ["../api/src/index"],
+			"@fosscord/gateway": ["../gateway/src/index"],
+			"@fosscord/cdn": ["../cdn/src/index"],
+			"@fosscord/util": ["../util/src/index"]
 		},
 		"plugins": [{ "transform": "@ovos-media/ts-transform-paths" }],
 		"noEmitHelpers": true,

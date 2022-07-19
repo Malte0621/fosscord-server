@@ -25,12 +25,4 @@
 			"path": "webrtc"
 		}
 	],
-	"settings": {
-		"awooga.originalColorCustomizations": {
-			"editor.background": "#402000"
-		},
-		"workbench.colorCustomizations": {
-			"editor.background": "#402000"
-		}
-	}
 }
