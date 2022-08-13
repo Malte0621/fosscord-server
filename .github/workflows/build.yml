@@ -21,5 +21,4 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
         
-      - run: cd bundle
-      - run: npm run setup
+      - run: npm run --prefix bundle setup
