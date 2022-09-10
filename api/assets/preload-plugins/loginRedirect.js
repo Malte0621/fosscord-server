@@ -1,7 +1,7 @@
 const redirectIfOnLogin = () => {
 	const path = window.location.pathname;
 	if (path == "/login" || path == "/register") {
-		window.location.reload();
+		// window.location.reload();
 	}
 }
 
